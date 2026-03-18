@@ -2,112 +2,136 @@
 
 import { useState } from "react";
 
-export default function LunchDecider() {
-  const [candidate, setCandidate] = useState("");
-  const [list, setList] = useState<string[]>([]);
-  const [result, setResult] = useState("");
+type LunchState = {
+  candidates: string[];
+  selectedLunch: string | null;
+  comment: string | null;
+};
 
-  const handleAdd = () => {
-    if (candidate !== "") {
-      setList([...list, candidate]);
-      setCandidate("");
-      setResult("");
+export default function LunchDeciderApp() {
+  const [lunch, setLunch] = useState<LunchState>({
+    candidates: ["ラーメン", "カレー", "パスタ", "ハンバーガー", "定食"],
+    selectedLunch: null,
+    comment: null,
+  });
+
+  const [newItem, setNewItem] = useState("");
+
+  const comments: Record<string, string> = {
+    ラーメン: "がっつりいきましょう！",
+    カレー: "元気を出したい日に！",
+    パスタ: "おしゃれに麺気分！",
+    ハンバーガー: "手軽にガッツリ！",
+    定食: "バランス良く栄養補給！",
+  };
+
+  const onAddItem = () => {
+    if (newItem === "") return;
+    setLunch({
+      candidates: [...lunch.candidates, newItem],
+      selectedLunch: lunch.selectedLunch,
+      comment: lunch.comment,
+    });
+    setNewItem("");
+  };
+
+  // 新しい魔法：「×」ボタンが押された時に、その項目を消す！
+  const onDeleteItem = (indexToRemove: number) => {
+    // おまけのUX：最後の1個は消せないようにする（ルーレットが壊れちゃうから！）
+    if (lunch.candidates.length <= 1) {
+      alert("候補は最低1つは必要です！🥺");
+      return;
     }
+
+    // プロの必殺技「filter（フィルター）」！
+    // 「今押された×ボタンの背番号（indexToRemove）」と「違う背番号」のものだけを生き残らせる！
+    const newCandidates = lunch.candidates.filter((_, index) => index !== indexToRemove);
+
+    // 生き残ったメンバーで箱を上書きする！
+    setLunch({
+      candidates: newCandidates,
+      selectedLunch: lunch.selectedLunch, // 選ばれた結果はそのままキープ
+      comment: lunch.comment, // コメントもそのままキープ
+    });
   };
 
-  const handleDelete = (indexToRemove: number) => {
-    const newList = list.filter((_, index) => index !== indexToRemove);
-    setList(newList);
-  };
+  const onDecide = () => {
+    const randomIndex = Math.floor(Math.random() * lunch.candidates.length);
+    const randomFood = lunch.candidates[randomIndex];
+    const foodComment = comments[randomFood] || "今日の気分にぴったりのチョイス！";
 
-  const handleDecide = () => {
-    if (list.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * list.length);
-    setResult(list[randomIndex]);
+    setLunch({
+      candidates: lunch.candidates,
+      selectedLunch: randomFood,
+      comment: foodComment,
+    });
   };
 
   return (
-    // 画面全体：背景を薄いオレンジにして、ど真ん中に配置
-    <main className="min-h-screen bg-orange-50 flex items-center justify-center p-4">
-      
-      {/* 白いカード型の枠組み */}
-      <div className="bg-white max-w-md w-full rounded-3xl shadow-xl p-8 border-t-8 border-orange-400">
-        <h1 className="text-2xl font-bold mb-6 text-center text-orange-800">
-          🍔 今日のランチ決定くん
-        </h1>
+    <div className="min-h-screen bg-orange-50 flex flex-col items-center py-20 font-sans text-gray-800 overflow-x-hidden">
+      <h1 className="text-4xl font-bold mb-8 text-orange-600">🍱 ランチDecider</h1>
 
-        {/* 入力エリア（横並び） */}
-        <div className="flex gap-2 mb-6">
-          <input
-            type="text"
-            value={candidate}
-            onChange={(e) => setCandidate(e.target.value)}
-            placeholder="例：ラーメン"
-            className="flex-1 border-2 border-orange-200 rounded-lg p-3 focus:outline-none focus:border-orange-500 transition-colors"
-          />
-          <button
-            onClick={handleAdd}
-            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+      <div className="flex flex-wrap justify-center gap-3 mb-8 w-[500px]">
+        {lunch.candidates.map((item, index) => (
+          <span
+            key={index}
+            className="flex items-center gap-2 bg-white border-2 border-orange-200 text-orange-700 pl-4 pr-2 py-2 rounded-lg font-bold shadow-sm"
           >
-            追加
-          </button>
-        </div>
+            {item}
+            {/* これが新しく追加した「×」ボタンです！ */}
+            <button
+              onClick={() => onDeleteItem(index)}
+              className="text-orange-300 hover:text-red-500 font-black px-2 py-1 rounded-full transition-colors"
+              title="削除"
+            >
+              ×
+            </button>
+          </span>
+        ))}
+      </div>
 
-        {/* 候補リストエリア */}
-        <div className="mb-8 min-h-[120px]">
-          <h2 className="text-sm font-bold text-gray-500 mb-3">
-            現在の候補（{list.length}件）
-          </h2>
-          
-          {list.length === 0 ? (
-            // 候補が0件の時のメッセージ（点線で囲む）
-            <p className="text-center text-gray-400 py-6 border-2 border-dashed border-gray-200 rounded-lg">
-              候補を入力して追加してね！
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {list.map((item, index) => (
-                <li
-                  key={index}
-                  className="flex justify-between items-center bg-orange-100 px-4 py-3 rounded-lg text-orange-900 font-medium"
-                >
-                  <span>{item}</span>
-                  <button
-                    onClick={() => handleDelete(index)}
-                    className="text-orange-400 hover:text-red-500 text-2xl font-bold px-2 leading-none"
-                  >
-                    ×
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* 決定ボタン */}
+      <div className="flex gap-2 mb-8 w-96">
+        <input
+          type="text"
+          placeholder="例: 焼肉、お寿司"
+          value={newItem}
+          onChange={(e) => setNewItem(e.target.value)}
+          className="flex-1 px-4 py-2 rounded-lg border-2 border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400 shadow-sm"
+        />
         <button
-          onClick={handleDecide}
-          disabled={list.length === 0} // 候補が0件の時は押せなくする！
-          className="w-full bg-red-500 hover:bg-red-600 disabled:bg-gray-300 text-white font-bold py-4 rounded-full shadow-md transition-all active:translate-y-1 text-lg"
+          onClick={onAddItem}
+          className="bg-orange-400 text-white px-4 py-2 rounded-lg font-bold shadow-sm hover:bg-orange-500 transition-colors"
         >
-          どれにするか決める！
+          追加 ＋
         </button>
+      </div>
 
-        {/* 結果発表エリア */}
-        {result !== "" && (
-          <div className="mt-8 p-6 bg-yellow-50 border-4 border-yellow-400 rounded-xl text-center animate-bounce">
-            <p className="text-sm font-bold text-yellow-800 mb-2">
-              今日のご飯は……
-            </p>
-            <p className="text-4xl font-black text-red-600 my-4">
-              「{result}」
-            </p>
-            <p className="text-sm font-bold text-yellow-800 mt-2">
-              に決定！！
+      <button
+        onClick={onDecide}
+        className="mb-12 bg-orange-500 text-white px-8 py-4 rounded-full font-bold text-xl shadow-md hover:bg-orange-600 transition-transform active:scale-95"
+      >
+        今日のランチを決める！ 🎲
+      </button>
+
+      {/* ▼ 超シンプル！「lunch.selectedLunch」に中身がある時だけ、永遠にバウンド（animate-bounce）させる！ */}
+      <div
+        className={`bg-white w-96 rounded-3xl shadow-xl p-8 text-center border-4 border-orange-400 min-h-[230px] flex flex-col justify-center
+          ${lunch.selectedLunch ? "animate-bounce" : ""}`}
+      >
+        {lunch.selectedLunch ? (
+          <div>
+            <h2 className="text-lg font-bold text-gray-400 mb-2">今日のランチは...</h2>
+
+            <div className="text-5xl font-black mb-4 text-orange-500">{lunch.selectedLunch}</div>
+
+            <p className="text-orange-600 font-bold text-lg bg-orange-100 py-2 px-4 rounded-full inline-block">
+              💡 {lunch.comment}
             </p>
           </div>
+        ) : (
+          <p className="text-gray-400 font-medium">ボタンを押して運命のランチを決定！</p>
         )}
       </div>
-    </main>
+    </div>
   );
 }
