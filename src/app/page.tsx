@@ -172,7 +172,7 @@ export default function LunchDeciderApp() {
 
           <button
             onClick={onShare}
-            className="flex items-center justify-center gap-2 bg-blue-500 text-white px-5 py-2 rounded-full font-bold text-sm shadow hover:bg-blue-600 transition-colors active:scale-95"
+            className="flex items-center justify-center gap-2 bg-orange-500 text-white px-5 py-2 rounded-full font-bold text-sm shadow hover:bg-orange-600 transition-colors active:scale-95"
           >
             結果をみんなにシェアする 🚀
           </button>
