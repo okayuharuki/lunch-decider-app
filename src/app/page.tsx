@@ -115,7 +115,7 @@ export default function LunchDeciderApp() {
 
       {/* ▼ 変更②: w-[500px] をやめて、w-full max-w-md（伸縮自在の箱）に！ */}
       <div className="bg-white w-full max-w-md rounded-2xl shadow-sm border-2 border-orange-200 p-4 mb-4 flex flex-col items-center">
-        <h2 className="text-lg font-bold text-orange-700 mb-4 flex items-center gap-2">📋 本日のランチ候補一覧</h2>
+        <h2 className="text-lg font-bold text-orange-700 mb-4 flex items-center gap-2">📋 今日のランチ候補一覧</h2>
 
         <div className="flex flex-wrap justify-center gap-2">
           {lunch.candidates.map((item, index) => (
