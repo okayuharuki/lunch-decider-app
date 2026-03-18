@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type LunchState = {
   candidates: string[];
@@ -16,6 +16,25 @@ export default function LunchDeciderApp() {
   });
 
   const [newItem, setNewItem] = useState("");
+
+  // ロード係🤖：「アプリを開いた最初の一回だけ」動く！
+  useEffect(() => {
+    // 秘密のポケット（localStorage）から "lunch-memory" という名前のメモを探す
+    const savedData = localStorage.getItem("lunch-memory");
+
+    if (savedData) {
+      // メモが見つかったら、暗号（文字列）を元のリスト（配列）に翻訳して、箱を上書きする！
+      setLunch((prev) => ({
+        ...prev,
+        candidates: JSON.parse(savedData),
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    // ランチの候補リストが変わるたびに、秘密のポケット（localStorage）に新しいメモを保存する！
+    localStorage.setItem("lunch-memory", JSON.stringify(lunch.candidates));
+  }, [lunch.candidates]);
 
   const comments: Record<string, string> = {
     ラーメン: "がっつりいきましょう！",
@@ -66,7 +85,7 @@ export default function LunchDeciderApp() {
     // ▼ 変更①: min-h-[100dvh] で画面ピッタリに！さらに全体を中央寄せ（justify-center）！余白も p-4 でコンパクトに！
     <div className="min-h-[100dvh] bg-orange-50 flex flex-col items-center justify-center p-4 font-sans text-gray-800 overflow-hidden">
       {/* 文字もスマホ向けに少し小さく調整 */}
-      <h1 className="text-3xl md:text-4xl font-bold mb-4 text-orange-600">🍱 ランチDecider</h1>
+      <h1 className="text-3xl md:text-4xl font-bold mb-4 text-orange-600">🍱 今日のランチ決定くん</h1>
 
       {/* ▼ 変更②: w-[500px] をやめて、w-full max-w-md（伸縮自在の箱）に！ */}
       <div className="bg-white w-full max-w-md rounded-2xl shadow-sm border-2 border-orange-200 p-4 mb-4 flex flex-col items-center">
