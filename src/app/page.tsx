@@ -35,23 +35,18 @@ export default function LunchDeciderApp() {
     setNewItem("");
   };
 
-  // 新しい魔法：「×」ボタンが押された時に、その項目を消す！
   const onDeleteItem = (indexToRemove: number) => {
-    // おまけのUX：最後の1個は消せないようにする（ルーレットが壊れちゃうから！）
     if (lunch.candidates.length <= 1) {
       alert("候補は最低1つは必要です！🥺");
       return;
     }
 
-    // プロの必殺技「filter（フィルター）」！
-    // 「今押された×ボタンの背番号（indexToRemove）」と「違う背番号」のものだけを生き残らせる！
     const newCandidates = lunch.candidates.filter((_, index) => index !== indexToRemove);
 
-    // 生き残ったメンバーで箱を上書きする！
     setLunch({
       candidates: newCandidates,
-      selectedLunch: lunch.selectedLunch, // 選ばれた結果はそのままキープ
-      comment: lunch.comment, // コメントもそのままキープ
+      selectedLunch: lunch.selectedLunch,
+      comment: lunch.comment,
     });
   };
 
@@ -68,29 +63,36 @@ export default function LunchDeciderApp() {
   };
 
   return (
-    <div className="min-h-screen bg-orange-50 flex flex-col items-center py-20 font-sans text-gray-800 overflow-x-hidden">
-      <h1 className="text-4xl font-bold mb-8 text-orange-600">🍱 ランチDecider</h1>
+    // ▼ 変更①: min-h-[100dvh] で画面ピッタリに！さらに全体を中央寄せ（justify-center）！余白も p-4 でコンパクトに！
+    <div className="min-h-[100dvh] bg-orange-50 flex flex-col items-center justify-center p-4 font-sans text-gray-800 overflow-hidden">
+      {/* 文字もスマホ向けに少し小さく調整 */}
+      <h1 className="text-3xl md:text-4xl font-bold mb-4 text-orange-600">🍱 ランチDecider</h1>
 
-      <div className="flex flex-wrap justify-center gap-3 mb-8 w-[500px]">
-        {lunch.candidates.map((item, index) => (
-          <span
-            key={index}
-            className="flex items-center gap-2 bg-white border-2 border-orange-200 text-orange-700 pl-4 pr-2 py-2 rounded-lg font-bold shadow-sm"
-          >
-            {item}
-            {/* これが新しく追加した「×」ボタンです！ */}
-            <button
-              onClick={() => onDeleteItem(index)}
-              className="text-orange-300 hover:text-red-500 font-black px-2 py-1 rounded-full transition-colors"
-              title="削除"
+      {/* ▼ 変更②: w-[500px] をやめて、w-full max-w-md（伸縮自在の箱）に！ */}
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-sm border-2 border-orange-200 p-4 mb-4 flex flex-col items-center">
+        <h2 className="text-lg font-bold text-orange-700 mb-4 flex items-center gap-2">📋 本日のランチ候補一覧</h2>
+
+        <div className="flex flex-wrap justify-center gap-2">
+          {lunch.candidates.map((item, index) => (
+            <span
+              key={index}
+              className="flex items-center gap-1 bg-white border-2 border-orange-200 text-orange-700 pl-3 pr-2 py-1.5 rounded-lg font-bold text-sm shadow-sm"
             >
-              ×
-            </button>
-          </span>
-        ))}
+              {item}
+              <button
+                onClick={() => onDeleteItem(index)}
+                className="text-orange-300 hover:text-red-500 font-black px-1.5 py-0.5 rounded-full transition-colors"
+                title="削除"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
       </div>
 
-      <div className="flex gap-2 mb-8 w-96">
+      {/* ▼ 変更③: 入力欄も w-full max-w-md に！ */}
+      <div className="flex gap-2 mb-6 w-full max-w-md">
         <input
           type="text"
           placeholder="例: 焼肉、お寿司"
@@ -106,32 +108,24 @@ export default function LunchDeciderApp() {
         </button>
       </div>
 
+      {/* ▼ ボタン周りの余白（mb-12）も（mb-6）に縮めてコンパクトに！ */}
       <button
         onClick={onDecide}
-        className="mb-12 bg-orange-500 text-white px-8 py-4 rounded-full font-bold text-xl shadow-md hover:bg-orange-600 transition-transform active:scale-95"
+        className="mb-6 bg-orange-500 text-white px-8 py-3 rounded-full font-bold text-lg shadow-md hover:bg-orange-600 transition-transform active:scale-95"
       >
         今日のランチを決める！ 🎲
       </button>
 
-      {/* ▼ 超シンプル！「lunch.selectedLunch」に中身がある時だけ、永遠にバウンド（animate-bounce）させる！ */}
-      <div
-        className={`bg-white w-96 rounded-3xl shadow-xl p-8 text-center border-4 border-orange-400 min-h-[230px] flex flex-col justify-center
-          ${lunch.selectedLunch ? "animate-bounce" : ""}`}
-      >
-        {lunch.selectedLunch ? (
-          <div>
-            <h2 className="text-lg font-bold text-gray-400 mb-2">今日のランチは...</h2>
-
-            <div className="text-5xl font-black mb-4 text-orange-500">{lunch.selectedLunch}</div>
-
-            <p className="text-orange-600 font-bold text-lg bg-orange-100 py-2 px-4 rounded-full inline-block">
-              💡 {lunch.comment}
-            </p>
-          </div>
-        ) : (
-          <p className="text-gray-400 font-medium">ボタンを押して運命のランチを決定！</p>
-        )}
-      </div>
+      {/* ▼ 変更④: 結果の枠も w-full max-w-md にして、高さを少しスリムに！ */}
+      {lunch.selectedLunch && (
+        <div className="bg-white w-full max-w-md rounded-3xl shadow-xl p-6 text-center border-4 border-orange-400 min-h-[180px] flex flex-col justify-center animate-bounce">
+          <h2 className="text-base font-bold text-gray-400 mb-2">今日のランチは...</h2>
+          <div className="text-4xl font-black mb-3 text-orange-500">{lunch.selectedLunch}</div>
+          <p className="text-orange-600 font-bold text-sm bg-orange-100 py-1.5 px-4 rounded-full inline-block">
+            💡 {lunch.comment}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
