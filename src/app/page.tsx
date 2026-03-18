@@ -81,11 +81,37 @@ export default function LunchDeciderApp() {
     });
   };
 
+  // =======================================================
+  // シェア機能
+  // =======================================================
+  const onShare = async () => {
+    // シェアする文章を準備！
+    const shareText = `今日のランチは【${lunch.selectedLunch}】に決定！🍱✨\n💡 ${lunch.comment}\n\n#ランチDecider`;
+    const shareUrl = window.location.href; // 今のアプリのURL
+
+    if (navigator.share) {
+      // スマホなど、シェア機能に対応している場合（下からシュッと画面が出る！）
+      try {
+        await navigator.share({
+          title: "ランチDecider",
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (error) {
+        console.log("シェアをキャンセルしました");
+      }
+    } else {
+      // パソコンなど、シェア機能に対応していない場合は「コピー」してあげる優しい設計！
+      navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+      alert("結果をコピーしました！SNSに貼り付けてね！📋✨");
+    }
+  };
+
   return (
     // ▼ 変更①: min-h-[100dvh] で画面ピッタリに！さらに全体を中央寄せ（justify-center）！余白も p-4 でコンパクトに！
     <div className="min-h-[100dvh] bg-orange-50 flex flex-col items-center justify-center p-4 font-sans text-gray-800 overflow-hidden">
       {/* 文字もスマホ向けに少し小さく調整 */}
-      <h1 className="text-3xl md:text-4xl font-bold mb-4 text-orange-600">🍱 今日のランチ決定くん</h1>
+      <h1 className="text-3xl md:text-4xl font-bold mb-4 text-orange-600">今日のランチ決定くん</h1>
 
       {/* ▼ 変更②: w-[500px] をやめて、w-full max-w-md（伸縮自在の箱）に！ */}
       <div className="bg-white w-full max-w-md rounded-2xl shadow-sm border-2 border-orange-200 p-4 mb-4 flex flex-col items-center">
@@ -140,9 +166,16 @@ export default function LunchDeciderApp() {
         <div className="bg-white w-full max-w-md rounded-3xl shadow-xl p-6 text-center border-4 border-orange-400 min-h-[180px] flex flex-col justify-center animate-bounce">
           <h2 className="text-base font-bold text-gray-400 mb-2">今日のランチは...</h2>
           <div className="text-4xl font-black mb-3 text-orange-500">{lunch.selectedLunch}</div>
-          <p className="text-orange-600 font-bold text-sm bg-orange-100 py-1.5 px-4 rounded-full inline-block">
+          <p className="text-orange-600 font-bold text-sm bg-orange-100 py-1.5 px-4 mb-3 rounded-full inline-block">
             💡 {lunch.comment}
           </p>
+
+          <button
+            onClick={onShare}
+            className="flex items-center justify-center gap-2 bg-blue-500 text-white px-5 py-2 rounded-full font-bold text-sm shadow hover:bg-blue-600 transition-colors active:scale-95"
+          >
+            結果をみんなにシェアする 🚀
+          </button>
         </div>
       )}
     </div>
