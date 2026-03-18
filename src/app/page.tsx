@@ -86,14 +86,14 @@ export default function LunchDeciderApp() {
   // =======================================================
   const onShare = async () => {
     // シェアする文章を準備！
-    const shareText = `今日のランチは【${lunch.selectedLunch}】に決定！🍱✨\n💡 ${lunch.comment}\n\n#ランチDecider`;
+    const shareText = `今日のランチは【${lunch.selectedLunch}】に決定！🍱✨\n💡 ${lunch.comment}\n\n#今日のランチ決定くん`;
     const shareUrl = window.location.href; // 今のアプリのURL
 
     if (navigator.share) {
       // スマホなど、シェア機能に対応している場合（下からシュッと画面が出る！）
       try {
         await navigator.share({
-          title: "ランチDecider",
+          title: "今日のランチ決定くん",
           text: shareText,
           url: shareUrl,
         });
